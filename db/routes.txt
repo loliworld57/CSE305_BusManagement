@@ -1,0 +1,4 @@
+Route 0 Library Home 500 120 5000
+Route 1 School Home 500 120 700
+Route 2 School Library 500 50 800
+Route 3 Library School 500 50 800
