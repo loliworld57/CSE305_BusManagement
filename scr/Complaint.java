@@ -13,7 +13,7 @@
  * @author baoki
  */
 public class Complaint extends javax.swing.JFrame {
-    private static final String COMPLAINTS_PATH = "e:\\AllAboutCode\\CSE305\\CSE305_BusManagement\\db\\complains.txt";
+    private static final String COMPLAINTS_PATH = "d:\\\\works\\\\BusManagement\\\\BusServiceSystem\\\\CSE305_BusManagement\\\\scr\\\\db\\\\complaints.txt";
 
     /**
      * Creates new form Complaint
