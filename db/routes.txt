@@ -1,0 +1,4 @@
+Route 0 Home Library 500 15 5000
+Route 1 Stadium Library 500 15 5000
+Route 2 Home School 500 15 5000
+Route 3 Home Pool 500 15 5000

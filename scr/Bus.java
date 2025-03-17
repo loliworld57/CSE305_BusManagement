@@ -5,20 +5,8 @@ import java.io.IOException;
 public class Bus implements IBus {
     private String busName;
     private int capacity;
-    private static final String BUSES_PATH = "e:\\AllAboutCode\\CSE305\\CSE305_BusManagement\\db\\buses.txt";
-
     // Private constructor for Builder pattern
     private Bus() {}
-
-    private void saveBusToFile() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(BUSES_PATH, true))) {
-            String busData = String.format("%s %d", busName, capacity);
-            writer.write(busData);
-            writer.newLine();
-        } catch (IOException e) {
-            System.err.println("Error saving bus: " + e.getMessage());
-        }
-    }
 
     @Override
     public String getBusName() {

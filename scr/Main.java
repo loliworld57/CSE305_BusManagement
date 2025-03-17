@@ -7,7 +7,7 @@ public class Main {
             @Override
             public void run() {
                 try {
-                    MainFrame mainFrame = new MainFrame();
+                    Admin mainFrame = new Admin();
                     mainFrame.setVisible(true);
                 } catch (Exception e) {
                     System.err.println("Error starting application: " + e.getMessage());
