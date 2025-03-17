@@ -7,12 +7,12 @@ public class BusSchedule {
     private ArrayList<Route> routes;
     private ArrayList<Bus> buses;
     private TreeMap<String, Line> busSchedule = new TreeMap<>();
-    private static final String SCHEDULE_PATH = "e:\\AllAboutCode\\CSE305\\CSE305_BusManagement\\db\\schedule.txt";
-    private static final String LINES_PATH = "e:\\AllAboutCode\\CSE305\\CSE305_BusManagement\\db\\lines.txt";
-    private static final String ROUTES_PATH = "e:\\AllAboutCode\\CSE305\\CSE305_BusManagement\\db\\routes.txt";
-    private static final String BUSES_PATH = "e:\\AllAboutCode\\CSE305\\CSE305_BusManagement\\db\\buses.txt";
 
-    // Private constructor for Builder pattern
+    private static final String SCHEDULE_PATH = "db/schedule.txt";
+    private static final String LINES_PATH = "db/lines.txt";
+    private static final String ROUTES_PATH = "db/routes.txt";
+    private static final String BUSES_PATH = "db/buses.txt";
+
     public BusSchedule() {
         loadBuses();
         loadRoutes();
@@ -22,7 +22,8 @@ public class BusSchedule {
 
     private void loadBuses() {
         this.buses = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(BUSES_PATH))) {
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream(BUSES_PATH);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(" ");
@@ -35,14 +36,15 @@ public class BusSchedule {
                         .build();
                 this.buses.add(bus);
             }
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) {
             System.err.println("Error loading buses: " + e.getMessage());
         }
     }
 
     private void loadRoutes() {
         this.routes = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(ROUTES_PATH))) {
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream(ROUTES_PATH);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(" ");
@@ -61,14 +63,15 @@ public class BusSchedule {
                         .build();
                 routes.add(route);
             }
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) {
             System.err.println("Error loading routes: " + e.getMessage());
         }
     }
 
     private void loadLines() {
         this.lines = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(LINES_PATH))) {
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream(LINES_PATH);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(" ");
@@ -80,7 +83,6 @@ public class BusSchedule {
                 Bus matchingBus = null;
                 Route matchingRoute = null;
 
-                // Find matching bus from loaded buses
                 for (Bus b : buses) {
                     if (b.getBusName().equals(busName)) {
                         matchingBus = b;
@@ -88,7 +90,6 @@ public class BusSchedule {
                     }
                 }
 
-                // Find matching route from loaded routes
                 for (Route r : routes) {
                     if (r.getRouteName().equals(routeName)) {
                         matchingRoute = r;
@@ -96,7 +97,6 @@ public class BusSchedule {
                     }
                 }
 
-                // Create new line if both bus and route are found
                 if (matchingBus != null && matchingRoute != null) {
                     Line newLine = new Line.Builder()
                             .lineName(lineName)
@@ -108,15 +108,13 @@ public class BusSchedule {
                     System.err.println("Could not find matching bus or route for line: " + lineName);
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) {
             System.err.println("Error loading lines: " + e.getMessage());
         }
     }
 
     private TreeMap<String, Line> loadSchedule() {
-        // Use TreeMap for automatic sorting by time
         TreeMap<String, Line> sortedSchedule = new TreeMap<>((t1, t2) -> {
-            // Convert times to comparable format (24hr)
             String[] time1 = t1.split(":");
             String[] time2 = t2.split(":");
             int hour1 = Integer.parseInt(time1[0]);
@@ -130,10 +128,10 @@ public class BusSchedule {
             return min1 - min2;
         });
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(SCHEDULE_PATH))) {
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream(SCHEDULE_PATH);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                // Skip empty lines or comments
                 if (line.trim().isEmpty() || line.startsWith("//")) {
                     continue;
                 }
@@ -149,7 +147,7 @@ public class BusSchedule {
                     }
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) {
             System.err.println("Error loading schedule: " + e.getMessage());
         }
         return sortedSchedule;
@@ -165,7 +163,7 @@ public class BusSchedule {
     }
 
     private void saveScheduleToFile(String time, String lineName) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(SCHEDULE_PATH, true))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("db/schedule.txt", true))) {
             String scheduleData = String.format("%s %s", time, lineName);
             writer.write(scheduleData);
             writer.newLine();
@@ -190,7 +188,6 @@ public class BusSchedule {
         return this.buses;
     }
 
-    // Builder pattern
     public static class Builder {
         private BusSchedule schedule;
 

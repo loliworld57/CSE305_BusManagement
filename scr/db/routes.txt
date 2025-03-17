@@ -1,0 +1,7 @@
+Route 0 Home Library 500 15 2500000.00
+Route 1 Stadium Library 500 15 2500000.00
+Route 2 SchoolYard Park 677 223 123456.00
+Route 3 Home Pool 500 15 2500000.00
+test 1 k l 45 5 225000.00
+Route 3 Homeeee Pool 500 15 2500000.00
+Route 99 Uni Kiesn 500 5 2500000.00
