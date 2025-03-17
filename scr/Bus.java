@@ -1,20 +1,12 @@
-package BusServiceSystem.scr;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class Bus implements IBus {
     private String busName;
     private int capacity;
-    private IRoute route;
-
-    public Bus(String busName, int capacity) {
-        this.busName = busName;
-        this.capacity = capacity;
-        this.route = null;
-    }
-
-    @Override
-    public void assignRoute(IRoute route) {
-        this.route = route;
-    }
+    // Private constructor for Builder pattern
+    private Bus() {}
 
     @Override
     public String getBusName() {
@@ -27,11 +19,6 @@ public class Bus implements IBus {
     }
 
     @Override
-    public IRoute getRoute() {
-        return route;
-    }
-
-    @Override
     public void setBusName(String busName) {
         this.busName = busName;
     }
@@ -39,5 +26,28 @@ public class Bus implements IBus {
     @Override
     public void setCapacity(int capacity) {
         this.capacity = capacity;
+    }
+
+    // Static Builder class
+    public static class Builder {
+        private Bus bus;
+
+        public Builder() {
+            bus = new Bus();
+        }
+
+        public Builder busName(String busName) {
+            bus.setBusName(busName);
+            return this;
+        }
+
+        public Builder capacity(int capacity) {
+            bus.setCapacity(capacity);
+            return this;
+        }
+
+        public Bus build() {
+            return bus;
+        }
     }
 }

@@ -1,4 +1,6 @@
-package BusServiceSystem.scr;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class Route implements IRoute {
     private String routeName;
@@ -7,15 +9,20 @@ public class Route implements IRoute {
     private Long distance;
     private Long duration;
     private double price;
-    private IBus bus;
+    private static final String ROUTES_PATH = "e:\\AllAboutCode\\CSE305\\CSE305_BusManagement\\db\\routes.txt";
 
-    public Route(String routeName, String start, String end, Long distance, Long duration) {
-        this.routeName = routeName;
-        this.start = start;
-        this.end = end;
-        this.distance = distance;
-        this.duration = duration;
-        this.price = distance * 5000;
+    // Private constructor for Builder pattern
+    private Route() {}
+
+    private void saveRouteToFile() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(ROUTES_PATH, true))) {
+            String routeData = String.format("%s %s %s %d %d %.0f", 
+                routeName, start, end, distance, duration, price);
+            writer.write(routeData);
+            writer.newLine();
+        } catch (IOException e) {
+            System.err.println("Error saving route: " + e.getMessage());
+        }
     }
 
     // Getters
@@ -49,11 +56,6 @@ public class Route implements IRoute {
         return price;
     }
 
-    @Override
-    public IBus getBus() {
-        return bus;
-    }
-
     // Setters
     @Override
     public void setRouteName(String routeName) {
@@ -73,6 +75,7 @@ public class Route implements IRoute {
     @Override
     public void setDistance(Long distance) {
         this.distance = distance;
+        this.price = distance * 5000; // Update price when distance changes
     }
 
     @Override
@@ -85,9 +88,41 @@ public class Route implements IRoute {
         this.price = price;
     }
 
-    @Override
-    public void setBus(IBus bus) {
-        this.bus = bus;
-        this.bus.assignRoute(this);
+    // Static Builder class
+    public static class Builder {
+        private Route route;
+
+        public Builder() {
+            route = new Route();
+        }
+
+        public Builder routeName(String routeName) {
+            route.setRouteName(routeName);
+            return this;
+        }
+
+        public Builder start(String start) {
+            route.setStart(start);
+            return this;
+        }
+
+        public Builder end(String end) {
+            route.setEnd(end);
+            return this;
+        }
+
+        public Builder distance(Long distance) {
+            route.setDistance(distance);
+            return this;
+        }
+
+        public Builder duration(Long duration) {
+            route.setDuration(duration);
+            return this;
+        }
+
+        public Route build() {
+            return route;
+        }
     }
 }
