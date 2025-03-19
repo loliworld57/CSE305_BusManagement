@@ -37,7 +37,6 @@ public class AdBusTable extends javax.swing.JFrame {
                         System.err.println("File not found: db/buses.txt");
                         return;
                 }
-                System.out.println(is.toString());
 
                 DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
                 model.setRowCount(0); // Clear existing rows
@@ -47,9 +46,17 @@ public class AdBusTable extends javax.swing.JFrame {
                         while ((line = br.readLine()) != null) {
                                 String[] parts = line.split(" ");
                                 if (parts.length == 3) {
-                                        String busName = parts[0] + " " + parts[1]; // Combine "Bus" and the number
+                                        String busName = parts[0] + " " + parts[1];
                                         int capacity = Integer.parseInt(parts[2]);
-                                        model.addRow(new Object[] { busName, capacity });
+
+                                        // Create a Bus object
+                                        Bus bus = new Bus.Builder()
+                                                        .busName(busName)
+                                                        .capacity(capacity)
+                                                        .build();
+
+                                        // Add the Bus object to the table
+                                        model.addRow(new Object[] { bus.getBusName(), bus.getCapacity() });
                                 }
                         }
                 } catch (IOException | NumberFormatException e) {
@@ -374,7 +381,6 @@ public class AdBusTable extends javax.swing.JFrame {
         }
 
         private void jBAddBusActionPerformed(java.awt.event.ActionEvent evt) {
-                // Get data from the text fields
                 String busName = jTFNameBusBM.getText().trim();
                 String capacityText = jTFCapacityBM.getText().trim();
 
@@ -388,15 +394,18 @@ public class AdBusTable extends javax.swing.JFrame {
                 try {
                         int capacity = Integer.parseInt(capacityText);
 
-                        // Add the new row to the table model
-                        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-                        model.addRow(new Object[] { busName, capacity });
+                        // Create a Bus object
+                        Bus bus = new Bus.Builder()
+                                        .busName(busName)
+                                        .capacity(capacity)
+                                        .build();
 
-                        // Append the new bus data to the file
-                        String filePath = "d:\\works\\BusManagement\\BusServiceSystem\\CSE305_BusManagement\\scr\\db\\buses.txt";
-                        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
-                                writer.write(String.format("%s %d%n", busName, capacity));
-                        }
+                        // Add the Bus object to the table
+                        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+                        model.addRow(new Object[] { bus.getBusName(), bus.getCapacity() });
+
+                        // Save the updated table data to the file
+                        saveTableToFile();
 
                         JOptionPane.showMessageDialog(this, "Bus added successfully!", "Success",
                                         JOptionPane.INFORMATION_MESSAGE);
@@ -407,79 +416,101 @@ public class AdBusTable extends javax.swing.JFrame {
                 } catch (NumberFormatException e) {
                         JOptionPane.showMessageDialog(this, "Capacity must be a valid number!", "Error",
                                         JOptionPane.ERROR_MESSAGE);
+                }
+        }
+
+        private void saveTableToFile() {
+                String filePath = "d:\\works\\BusManagement\\BusServiceSystem\\CSE305_BusManagement\\scr\\db\\buses.txt";
+
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+                        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+                        for (int i = 0; i < model.getRowCount(); i++) {
+                                String busName = model.getValueAt(i, 0).toString();
+                                int capacity = Integer.parseInt(model.getValueAt(i, 1).toString());
+
+                                // Create a Bus object
+                                Bus bus = new Bus.Builder()
+                                                .busName(busName)
+                                                .capacity(capacity)
+                                                .build();
+
+                                // Write the Bus object to the file
+                                writer.write(String.format("%s %d%n", bus.getBusName(), bus.getCapacity()));
+                        }
                 } catch (IOException e) {
-                        JOptionPane.showMessageDialog(this, "Error writing to file: " + e.getMessage(), "Error",
+                        JOptionPane.showMessageDialog(this, "Error saving to file: " + e.getMessage(), "Error",
                                         JOptionPane.ERROR_MESSAGE);
                 }
         }
 
         private void jBUpdateBusActionPerformed(java.awt.event.ActionEvent evt) {
-                // Get the selected row index
                 int selectedRow = jTable1.getSelectedRow();
-
+            
                 // Ensure a row is selected
                 if (selectedRow != -1) {
-                        // Get updated data from the text fields
-                        String updatedBusName = jTFNameBusBM.getText().trim();
-                        String updatedCapacity = jTFCapacityBM.getText().trim();
-
-                        // Validate input
-                        if (updatedBusName.isEmpty() || updatedCapacity.isEmpty()) {
-                                JOptionPane.showMessageDialog(this, "Please fill in all fields!", "Error",
-                                                JOptionPane.ERROR_MESSAGE);
-                                return;
-                        }
-
-                        try {
-                                int capacity = Integer.parseInt(updatedCapacity);
-
-                                // Update the table model
-                                DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-                                model.setValueAt(updatedBusName, selectedRow, 0);
-                                model.setValueAt(capacity, selectedRow, 1);
-
-                                JOptionPane.showMessageDialog(this, "Row updated successfully!", "Success",
-                                                JOptionPane.INFORMATION_MESSAGE);
-
-                                // Clear the text fields
-                                jTFNameBusBM.setText("");
-                                jTFCapacityBM.setText("");
-                        } catch (NumberFormatException e) {
-                                JOptionPane.showMessageDialog(this, "Capacity must be a valid number!", "Error",
-                                                JOptionPane.ERROR_MESSAGE);
-                        }
+                    String updatedBusName = jTFNameBusBM.getText().trim();
+                    String updatedCapacity = jTFCapacityBM.getText().trim();
+            
+                    // Validate input
+                    if (updatedBusName.isEmpty() || updatedCapacity.isEmpty()) {
+                        JOptionPane.showMessageDialog(this, "Please fill in all fields!", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+            
+                    try {
+                        int capacity = Integer.parseInt(updatedCapacity);
+            
+                        // Create a Bus object
+                        Bus bus = new Bus.Builder()
+                                .busName(updatedBusName)
+                                .capacity(capacity)
+                                .build();
+            
+                        // Update the table model
+                        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+                        model.setValueAt(bus.getBusName(), selectedRow, 0);
+                        model.setValueAt(bus.getCapacity(), selectedRow, 1);
+            
+                        // Save the updated table data to the file
+                        saveTableToFile();
+            
+                        JOptionPane.showMessageDialog(this, "Row updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            
+                        // Clear the text fields
+                        jTFNameBusBM.setText("");
+                        jTFCapacityBM.setText("");
+                    } catch (NumberFormatException e) {
+                        JOptionPane.showMessageDialog(this, "Capacity must be a valid number!", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
                 } else {
-                        JOptionPane.showMessageDialog(this, "Please select a row to update!", "Error",
-                                        JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Please select a row to update!", "Error", JOptionPane.ERROR_MESSAGE);
                 }
-        }
-
+            }
         private void jBDeleteBusActionPerformed(java.awt.event.ActionEvent evt) {
-                // Get the selected row index
                 int selectedRow = jTable1.getSelectedRow();
-
+            
                 // Ensure a row is selected
                 if (selectedRow != -1) {
-                        // Confirm deletion
-                        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this row?",
-                                        "Confirm Deletion", JOptionPane.YES_NO_OPTION);
-                        if (confirm == JOptionPane.YES_OPTION) {
-                                // Remove the selected row from the table model
-                                DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-                                model.removeRow(selectedRow);
-
-                                JOptionPane.showMessageDialog(this, "Row deleted successfully!", "Success",
-                                                JOptionPane.INFORMATION_MESSAGE);
-
-                                // Clear the text fields
-                                jTFNameBusBM.setText("");
-                                jTFCapacityBM.setText("");
-                        }
+                    int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this row?",
+                            "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+                    if (confirm == JOptionPane.YES_OPTION) {
+                        // Remove the selected row from the table model
+                        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+                        model.removeRow(selectedRow);
+            
+                        // Save the updated table data to the file
+                        saveTableToFile();
+            
+                        JOptionPane.showMessageDialog(this, "Row deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            
+                        // Clear the text fields
+                        jTFNameBusBM.setText("");
+                        jTFCapacityBM.setText("");
+                    }
                 } else {
-                        JOptionPane.showMessageDialog(this, "Please select a row to delete!", "Error",
-                                        JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Please select a row to delete!", "Error", JOptionPane.ERROR_MESSAGE);
                 }
-        }
+            }
 
         /**
          * @param args the command line arguments

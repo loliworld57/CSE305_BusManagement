@@ -32,15 +32,13 @@ public class Route implements IRoute {
     }
 
     @Override
-    public String getDuration() {
-        long hours = duration / 60;
-        long minutes = duration % 60;
-        return hours + "h " + minutes + "m";
+    public Long getDuration() {
+        return duration;
     }
 
     @Override
     public double getPrice() {
-        return price;
+        return this.price;
     }
 
     // Setters
@@ -62,7 +60,7 @@ public class Route implements IRoute {
     @Override
     public void setDistance(Long distance) {
         this.distance = distance;
-        this.price = distance * 5000; // Update price when distance changes
+        this.price = distance * 5; // Update price when distance changes
     }
 
     @Override
@@ -105,6 +103,11 @@ public class Route implements IRoute {
 
         public Builder duration(Long duration) {
             route.setDuration(duration);
+            return this;
+        }
+
+        public Builder price(double price) {
+            route.setPrice(price);
             return this;
         }
 
