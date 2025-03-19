@@ -32,8 +32,10 @@ public class Route implements IRoute {
     }
 
     @Override
-    public Long getDuration() {
-        return duration;
+    public String getDuration() {
+        long hours = duration / 60;
+        long minutes = duration % 60;
+        return hours + "h " + minutes + "m";
     }
 
     @Override
