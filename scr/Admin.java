@@ -26,24 +26,29 @@ public class Admin extends javax.swing.JFrame {
         setResizable(false);
         setTitle("Admin");
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        loadSchedule();
 
-        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-        model.setRowCount(0);
-        schedule = new BusSchedule();
-
-        jTable1.setEnabled(true);
         jTFAdSearch.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
-                jTFAdSearchKeyReleased(evt);
-            }
+                jTFAdSearchKeyReleased(evt);   
+                loadSchedule();
+                 }
         });
-        
+
         jBMore.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jBMoreActionPerformed(evt);
             }
         });
 
+    }
+
+    private void loadSchedule() {
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0);
+        schedule = new BusSchedule();
+
+        jTable1.setEnabled(true);
         try {
             TreeMap<String, Line> lineData = schedule.getBusSchedule();
             for (String time : lineData.keySet()) {
@@ -315,6 +320,7 @@ public class Admin extends javax.swing.JFrame {
     private void jTFAdSearchKeyReleased(java.awt.event.KeyEvent evt) {// GEN-FIRST:event_jTFAdSearchKeyReleased
         // TODO add your handling code here:
     }// GEN-LAST:event_jTFAdSearchKeyReleased
+
     private void jBMoreActionPerformed(java.awt.event.ActionEvent evt) {
         // Create and display the BusLineFrame
         BusLineFrame busLineFrame = new BusLineFrame();

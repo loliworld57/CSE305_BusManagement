@@ -1,6 +1,3 @@
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 
 public class Route implements IRoute {
     private String routeName;
@@ -9,21 +6,9 @@ public class Route implements IRoute {
     private Long distance;
     private Long duration;
     private double price;
-    private static final String ROUTES_PATH = "e:\\AllAboutCode\\CSE305\\CSE305_BusManagement\\db\\routes.txt";
 
     // Private constructor for Builder pattern
     private Route() {}
-
-    private void saveRouteToFile() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(ROUTES_PATH, true))) {
-            String routeData = String.format("%s %s %s %d %d %.0f", 
-                routeName, start, end, distance, duration, price);
-            writer.write(routeData);
-            writer.newLine();
-        } catch (IOException e) {
-            System.err.println("Error saving route: " + e.getMessage());
-        }
-    }
 
     // Getters
     @Override
