@@ -4,7 +4,7 @@ public interface IRoute {
     String getStart();
     String getEnd();
     Long getDistance();
-    Long getDuration();
+    String getDuration();
     double getPrice();
 
     void setRouteName(String routeName);
