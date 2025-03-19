@@ -4,3 +4,5 @@ Bus 2 50
 Bus 3 60
 Bus 5 50
 Bus 9 5000
+Bus 69 500
+bus 80 50
