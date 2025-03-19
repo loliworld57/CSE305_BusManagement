@@ -3,7 +3,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -42,7 +45,6 @@ public class AdRouteTable extends javax.swing.JFrame {
                 jBUpdateRoute1ActionPerformed(evt);
             }
         });
-        
         jBDeleteRoute1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jBDeleteRoute1ActionPerformed(evt);
@@ -52,34 +54,63 @@ public class AdRouteTable extends javax.swing.JFrame {
     }
 
     private void loadRouteData() {
-        // Create an instance of BusSchedule
-        BusSchedule busSchedule = new BusSchedule();
-
-        // Get the list of routes
-        ArrayList<Route> routes = busSchedule.getRoutes();
-
-        // Get the table model
+        String filePath = "d:\\works\\BusManagement\\BusServiceSystem\\CSE305_BusManagement\\scr\\db\\routes.txt";
+        File file = new File(filePath);
+    
+        if (!file.exists()) {
+            System.err.println("File not found: " + filePath);
+            return;
+        }
+    
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
         model.setRowCount(0); // Clear existing rows
-
-        // Populate the table with route data
-        for (Route route : routes) {
-            String routeName = route.getRouteName();
-            String start = route.getStart();
-            String end = route.getEnd();
-            long distance = route.getDistance();
-            String duration = route.getDuration();
-            double price = route.getPrice(); // Assuming `Route` has a `getPrice()` method
-            model.addRow(new Object[] { routeName, start, end, distance, duration, price });
+    
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(" ");
+                if (parts.length >= 6) { // Ensure there are at least 6 parts
+                    // Combine all parts before the last 4 fields into the route name
+                    StringBuilder routeNameBuilder = new StringBuilder();
+                    for (int i = 0; i < parts.length - 5; i++) {
+                        routeNameBuilder.append(parts[i]).append(" ");
+                    }
+                    String routeName = routeNameBuilder.toString().trim();
+                    String start = parts[parts.length - 5];
+                    String end = parts[parts.length - 4];
+                    long distance = Long.parseLong(parts[parts.length - 3]);
+                    long duration = Long.parseLong(parts[parts.length - 2]);
+                    double price = Double.parseDouble(parts[parts.length - 1]);
+    
+                    // Create a Route object
+                    Route route = new Route.Builder()
+                            .routeName(routeName)
+                            .start(start)
+                            .end(end)
+                            .distance(distance)
+                            .duration(duration)
+                            .build();
+    
+                    // Add the Route object to the table
+                    model.addRow(new Object[] {
+                            route.getRouteName(),
+                            route.getStart(),
+                            route.getEnd(),
+                            route.getDistance(),
+                            route.getDuration(),
+                            price // Use the price directly from the file
+                    });
+                } else {
+                    System.err.println("Invalid line format: " + line); // Debugging log
+                }
+            }
+        } catch (IOException | NumberFormatException e) {
+            e.printStackTrace();
         }
     }
-
-
-
-
     private void saveTableToFile() {
         String filePath = "d:\\works\\BusManagement\\BusServiceSystem\\CSE305_BusManagement\\scr\\db\\routes.txt";
-    
+
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
             DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
             for (int i = 0; i < model.getRowCount(); i++) {
@@ -89,13 +120,13 @@ public class AdRouteTable extends javax.swing.JFrame {
                 long distance = Long.parseLong(model.getValueAt(i, 3).toString());
                 long duration = Long.parseLong(model.getValueAt(i, 4).toString());
                 double price = Double.parseDouble(model.getValueAt(i, 5).toString());
+
                 writer.write(String.format("%s %s %s %d %d %.2f%n", routeName, startLocation, endLocation, distance, duration, price));
             }
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this, "Error saving to file: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -143,11 +174,11 @@ public class AdRouteTable extends javax.swing.JFrame {
                         "Route Name", "Start Location", "End Location", "Distance", "Duration", "Price"
                 }) {
             Class[] types = new Class[] {
-                    java.lang.String.class, 
-                    java.lang.String.class, 
-                    java.lang.String.class, 
+                    java.lang.String.class,
+                    java.lang.String.class,
+                    java.lang.String.class,
                     java.lang.Long.class,
-                    java.lang.String.class, 
+                    java.lang.String.class,
                     java.lang.Long.class
             };
 
@@ -328,17 +359,14 @@ public class AdRouteTable extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jBAddRoute1ActionPerformed(java.awt.event.ActionEvent evt) {
-        // Get data from the input fields
         String routeName = jTFNameRoute1.getText().trim();
         String startLocation = jTFStartLocaRoute1.getText().trim();
         String endLocation = jTFEndLocaRoute1.getText().trim();
         String distanceText = jTFDistanceRoute1.getText().trim();
         String durationText = jTFDurationRoute1.getText().trim();
-        String priceText = jTFPriceRoute1.getText().trim();
 
-        // Validate input
         if (routeName.isEmpty() || startLocation.isEmpty() || endLocation.isEmpty() ||
-                distanceText.isEmpty() || durationText.isEmpty() || priceText.isEmpty()) {
+                distanceText.isEmpty() || durationText.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please fill in all fields!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -346,61 +374,56 @@ public class AdRouteTable extends javax.swing.JFrame {
         try {
             long distance = Long.parseLong(distanceText);
             long duration = Long.parseLong(durationText);
-            double price = Double.parseDouble(priceText);
 
-            // Append the new route to the file
-            String filePath = "d:\\works\\BusManagement\\BusServiceSystem\\CSE305_BusManagement\\scr\\db\\routes.txt";
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
-                writer.write(String.format("%s %s %s %d %d %.2f%n", routeName, startLocation, endLocation, distance,
-                        duration, price));
-            }
+            Route newRoute = new Route.Builder()
+                    .routeName(routeName)
+                    .start(startLocation)
+                    .end(endLocation)
+                    .distance(distance)
+                    .duration(duration)
+                    .build();
 
-            // Add the new route to the table
             DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-            model.addRow(new Object[] { routeName, startLocation, endLocation, distance, duration, price });
+            model.addRow(new Object[] {
+                    newRoute.getRouteName(),
+                    newRoute.getStart(),
+                    newRoute.getEnd(),
+                    newRoute.getDistance(),
+                    newRoute.getDuration(),
+                    newRoute.getPrice()
+            });
 
-            // Show success message
-            JOptionPane.showMessageDialog(this, "Route added successfully!", "Success",
-                    JOptionPane.INFORMATION_MESSAGE);
+            saveTableToFile();
 
-            // Clear the input fields
+            JOptionPane.showMessageDialog(this, "Route added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+
             jTFNameRoute1.setText("");
             jTFStartLocaRoute1.setText("");
             jTFEndLocaRoute1.setText("");
             jTFDistanceRoute1.setText("");
             jTFDurationRoute1.setText("");
-            jTFPriceRoute1.setText("");
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Distance, duration, and price must be valid numbers!", "Error",
-                    JOptionPane.ERROR_MESSAGE);
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "Error writing to file: " + e.getMessage(), "Error",
-                    JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Distance and duration must be valid numbers!", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
+
     private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {
-        // Get the selected row index
         int selectedRow = jTable1.getSelectedRow();
 
-        // Populate the input fields with the selected row's data
         if (selectedRow != -1) {
             jTFNameRoute1.setText(jTable1.getValueAt(selectedRow, 0).toString());
             jTFStartLocaRoute1.setText(jTable1.getValueAt(selectedRow, 1).toString());
             jTFEndLocaRoute1.setText(jTable1.getValueAt(selectedRow, 2).toString());
             jTFDistanceRoute1.setText(jTable1.getValueAt(selectedRow, 3).toString());
             jTFDurationRoute1.setText(jTable1.getValueAt(selectedRow, 4).toString());
-            jTFPriceRoute1.setText(jTable1.getValueAt(selectedRow, 5).toString());
         }
     }
 
     private void jBUpdateRoute1ActionPerformed(java.awt.event.ActionEvent evt) {
-        // Get the selected row index
         int selectedRow = jTable1.getSelectedRow();
     
-        // Ensure a row is selected
         if (selectedRow != -1) {
-            // Get updated data from the input fields
             String updatedRouteName = jTFNameRoute1.getText().trim();
             String updatedStartLocation = jTFStartLocaRoute1.getText().trim();
             String updatedEndLocation = jTFEndLocaRoute1.getText().trim();
@@ -408,17 +431,25 @@ public class AdRouteTable extends javax.swing.JFrame {
             String updatedDurationText = jTFDurationRoute1.getText().trim();
             String updatedPriceText = jTFPriceRoute1.getText().trim();
     
-            // Validate input
             if (updatedRouteName.isEmpty() || updatedStartLocation.isEmpty() || updatedEndLocation.isEmpty() ||
-                    updatedDistanceText.isEmpty() || updatedDurationText.isEmpty() || updatedPriceText.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Please fill in all fields!", "Error", JOptionPane.ERROR_MESSAGE);
+                    updatedDistanceText.isEmpty() || updatedDurationText.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please fill in all fields except price!", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
     
             try {
                 long updatedDistance = Long.parseLong(updatedDistanceText);
                 long updatedDuration = Long.parseLong(updatedDurationText);
-                double updatedPrice = Double.parseDouble(updatedPriceText);
+    
+                // Determine the price
+                double updatedPrice;
+                if (updatedPriceText.isEmpty()) {
+                    // Auto-calculate price based on distance
+                    updatedPrice = updatedDistance * 5.0; // Example: price is 5.0 per unit of distance
+                } else {
+                    // Use the provided price
+                    updatedPrice = Double.parseDouble(updatedPriceText);
+                }
     
                 // Update the table model
                 DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
@@ -429,7 +460,6 @@ public class AdRouteTable extends javax.swing.JFrame {
                 model.setValueAt(updatedDuration, selectedRow, 4);
                 model.setValueAt(updatedPrice, selectedRow, 5);
     
-                // Save the updated table data to the file
                 saveTableToFile();
     
                 JOptionPane.showMessageDialog(this, "Route updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
@@ -449,30 +479,24 @@ public class AdRouteTable extends javax.swing.JFrame {
         }
     }
     private void jBDeleteRoute1ActionPerformed(java.awt.event.ActionEvent evt) {
-        // Get the selected row index
         int selectedRow = jTable1.getSelectedRow();
-    
-        // Ensure a row is selected
+
         if (selectedRow != -1) {
-            // Confirm deletion
-            int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this route?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+            int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this route?",
+                    "Confirm Deletion", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
-                // Remove the selected row from the table model
                 DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
                 model.removeRow(selectedRow);
-    
-                // Save the updated table data to the file
+
                 saveTableToFile();
-    
+
                 JOptionPane.showMessageDialog(this, "Route deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-    
-                // Clear the input fields
+
                 jTFNameRoute1.setText("");
                 jTFStartLocaRoute1.setText("");
                 jTFEndLocaRoute1.setText("");
                 jTFDistanceRoute1.setText("");
                 jTFDurationRoute1.setText("");
-                jTFPriceRoute1.setText("");
             }
         } else {
             JOptionPane.showMessageDialog(this, "Please select a row to delete!", "Error", JOptionPane.ERROR_MESSAGE);
