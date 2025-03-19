@@ -5,5 +5,6 @@ Route 3 Home Pool 500 15 2500000.00
 test 1 k l 45 50 225000.00
 Route 3 Homeeee Pool 500 150 2500000.00
 Route 99 Uni Kiesn 500 5 2500000.00
-Route 30 From To 500 50 2500000.00
+Route 30 From To 500 5000 2500.00
 Test 13 tu ba 500 5 70000.00
+Route 8 EIU Hikari 5000 15 25000.00

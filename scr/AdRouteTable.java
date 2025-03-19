@@ -89,8 +89,9 @@ public class AdRouteTable extends javax.swing.JFrame {
                             .end(end)
                             .distance(distance)
                             .duration(duration)
+                            .price(price)
                             .build();
-    
+                    route.setPrice(price); 
                     // Add the Route object to the table
                     model.addRow(new Object[] {
                             route.getRouteName(),
@@ -98,7 +99,7 @@ public class AdRouteTable extends javax.swing.JFrame {
                             route.getEnd(),
                             route.getDistance(),
                             route.getDuration(),
-                            price // Use the price directly from the file
+                            route.getPrice() 
                     });
                 } else {
                     System.err.println("Invalid line format: " + line); // Debugging log
@@ -445,7 +446,7 @@ public class AdRouteTable extends javax.swing.JFrame {
                 double updatedPrice;
                 if (updatedPriceText.isEmpty()) {
                     // Auto-calculate price based on distance
-                    updatedPrice = updatedDistance * 5.0; // Example: price is 5.0 per unit of distance
+                    updatedPrice = updatedDistance * 5; // Example: price is 5.0 per unit of distance
                 } else {
                     // Use the provided price
                     updatedPrice = Double.parseDouble(updatedPriceText);
